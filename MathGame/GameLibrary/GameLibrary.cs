@@ -1,4 +1,5 @@
 ﻿using Spectre.Console;
+using System.Text;
 
 namespace GameLibrary
 {
@@ -22,7 +23,8 @@ namespace GameLibrary
 
         private int _UserAnswer { get; set; }
 
-        private string[] _FormattedCalculation { get; set;}
+        private string[] _Calculation { get; set;}
+        private string _FormattedCalculation { get; set; }
 
         public Panel _CalculationDisplay { get; set; }
 
@@ -38,7 +40,8 @@ namespace GameLibrary
             this._SecondNumber = 0;
             this._TrueAnswer = 0;
             this._UserAnswer = 0;
-            this._FormattedCalculation = new string[5];
+            this._Calculation = new string[5];
+            this._FormattedCalculation = "";
 
             this._CalculationDisplay = new Panel("----------")
                 .RoundedBorder();
@@ -165,8 +168,10 @@ namespace GameLibrary
                 // Get User Answer
                 GetUserAnswer();
                 // Format the calculation (with true answer)
-                _FormattedCalculation = FormatCalculation();
-                askedQuestions[i] = _FormattedCalculation;
+                _Calculation = FormatCalculation();
+                askedQuestions[i] = _Calculation;
+
+                UpdateDisplay();
             } 
         }
 
@@ -206,6 +211,43 @@ namespace GameLibrary
             formattedCalculation[4] = _TrueAnswer.ToString();
 
             return formattedCalculation;
+        }
+
+        private void WriteFormattedString()
+        {
+            StringBuilder formatted = new StringBuilder();
+            string temp = "";
+            for (int i = 0; i < _Calculation.Length; i++)
+            {
+                if (i == 4)
+                {
+                    temp = _Calculation[i];
+                    formatted.AppendFormat("{0}.", temp);
+                }
+                else
+                {
+                    temp = _Calculation[i];
+                    formatted.AppendFormat("{0} ", temp);
+                }
+            }
+            temp = formatted.ToString();
+            _FormattedCalculation = temp;
+        }
+
+        private void UpdateDisplay()
+        {
+            if (_UserAnswer == _TrueAnswer)
+            {
+                _CalculationDisplay = new Panel(_FormattedCalculation)
+                    .RoundedBorder()
+                    .BorderColor(Color.Green);
+            }
+            else
+            {
+                _CalculationDisplay = new Panel(_FormattedCalculation)
+                    .RoundedBorder()
+                    .BorderColor(Color.Red);
+            }
         }
     }
 }
