@@ -36,16 +36,7 @@ namespace GameLibrary
             this._FormattedCalculation = new string[5];
         }
 
-        public int GetScore()
-        {
-            return _Score;
-        }
-
-        public List<string[]> GetPreviousGames()
-        {
-            return _PreviousGames;
-        }
-
+        // Get user's menu choice. Update _MenuChoice and _GameSymbol
         public void GetSetMenuOptions()
         {
             string choice = AnsiConsole.Prompt(
@@ -58,19 +49,23 @@ namespace GameLibrary
             _MenuChoice = choice;
         }
 
+        // Run the game for the given choice
         public void RunChoice()
         {
+            // Using the users choice from the menu
             switch ( _MenuChoice )
             {
                 case "Change Difficulty":
                     AskDifficulty();
                     break;
                 case "Addition":
+                    // Generic function for all games
                     DoCalculation();
                     break;
             }
         }
 
+        // Return game symbol based on users menu choice
         private string GetGameSymbol(string choice)
         {
             switch (choice)
@@ -88,6 +83,7 @@ namespace GameLibrary
             }
         }
 
+        // Change the games difficulty
         public void AskDifficulty()
         {
             string difficulty = AnsiConsole.Prompt(
@@ -116,6 +112,7 @@ namespace GameLibrary
             }
         }
 
+        // Generate new random numbers
         private void GenerateGameNumbers()
         {
             _FirstNumber = _Random.Next(_Difficulty[0], _Difficulty[1]);
@@ -130,8 +127,10 @@ namespace GameLibrary
                     _SecondNumber = _Random.Next(_Difficulty[0], _Difficulty[1]);
                 }
             }
+
         }
 
+        // Run the game rounds, and update the records to record the game.
         private void DoCalculation()
         {
             string[][] askedQuestions = new string[5][];
@@ -147,12 +146,14 @@ namespace GameLibrary
             } 
         }
 
+        // Get the user's answer to the question
         private void getUserAnswer()
         {
             int answer = AnsiConsole.Ask<int>("Answer: ");
             _UserAnswer = answer;
         }
 
+        // Format the calculation as an array (including users answer).
         private string[] FormatCalculation()
         {
             string[] formattedCalculation = new string[5];
