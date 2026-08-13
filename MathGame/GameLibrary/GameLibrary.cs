@@ -11,10 +11,13 @@ namespace GameLibrary
         private List<string> _PreviousGames { get; set; }
 
         private string _MenuChoice { get; set; }
+        private string _GameSymbol { get; set; }
         private int[] _Difficulty { get; set; }
 
         private int _FirstNumber { get; set; }
         private int _SecondNumber { get; set; }
+
+        private int _userAnswer { get; set; }
 
         public Game()
         {
@@ -38,7 +41,7 @@ namespace GameLibrary
             return _PreviousGames;
         }
 
-        public void GetMenuOption()
+        public void GetSetMenuOptions()
         {
             string choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
@@ -46,7 +49,25 @@ namespace GameLibrary
                 .AddChoices("Addition", "Subtraction", "Multiplication", "Division", "Change Difficulty")
                 );
 
+            _GameSymbol = GetGameSymbol(choice);
             _MenuChoice = choice;
+        }
+
+        private string GetGameSymbol(string choice)
+        {
+            switch (choice)
+            {
+                case "Addition":
+                    return "+";
+                case "Subtraction":
+                    return "-";
+                case "Multiplication":
+                    return "*";
+                case "Division":
+                    return "/";
+                default:
+                    return "#";
+            }
         }
 
         public void RunChoice()
@@ -87,7 +108,7 @@ namespace GameLibrary
             }
         }
 
-        public void GenerateGameNumbers()
+        private void GenerateGameNumbers()
         {
             _FirstNumber = _Random.Next(_Difficulty[0], _Difficulty[1]);
             _SecondNumber = _Random.Next(_Difficulty[0], _Difficulty[1]);
@@ -102,5 +123,13 @@ namespace GameLibrary
                 }
             }
         }
+
+        /*private void DoCalculation()
+        {
+            // Update numbers
+            GenerateGameNumbers();
+
+            AnsiConsole.MarkupLineInterpolated($"{_FirstNumber} {symb}");
+        }*/
     }
 }
