@@ -4,7 +4,7 @@ namespace GameLibrary
 {
     public class Game
     {
-        private Random _Random { get; set; }
+        private Random _Random { get; }
         private int GAME_ROUNDS = 5;
 
         public bool GameRunning { get; }
@@ -88,7 +88,7 @@ namespace GameLibrary
             }
         }
 
-        private void AskDifficulty()
+        public void AskDifficulty()
         {
             string difficulty = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
