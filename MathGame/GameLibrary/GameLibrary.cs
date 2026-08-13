@@ -18,9 +18,13 @@ namespace GameLibrary
         private int _FirstNumber { get; set; }
         private int _SecondNumber { get; set; }
 
+        private int _TrueAnswer { get; set; }
+
         private int _UserAnswer { get; set; }
 
         private string[] _FormattedCalculation { get; set;}
+
+        public Panel _CalculationDisplay { get; set; }
 
         public Game()
         {
@@ -32,8 +36,12 @@ namespace GameLibrary
             this._Difficulty = new int[2];
             this._FirstNumber = 0;
             this._SecondNumber = 0;
+            this._TrueAnswer = 0;
             this._UserAnswer = 0;
             this._FormattedCalculation = new string[5];
+
+            this._CalculationDisplay = new Panel("----------")
+                .RoundedBorder();
         }
 
         // Get user's menu choice. Update _MenuChoice and _GameSymbol
@@ -60,9 +68,14 @@ namespace GameLibrary
                     break;
                 case "Addition":
                     // Generic function for all games
-                    DoCalculation();
+                    RunGame();
                     break;
             }
+        }
+
+        public Panel DisplayCalculationPanel()
+        {
+            return _CalculationDisplay;
         }
 
         // Return game symbol based on users menu choice
@@ -131,23 +144,52 @@ namespace GameLibrary
         }
 
         // Run the game rounds, and update the records to record the game.
-        private void DoCalculation()
+        private void RunGame()
         {
             string[][] askedQuestions = new string[5][];
             for (int i = 0; i < GAME_ROUNDS; i++){
                 // Update numbers
                 GenerateGameNumbers();
                 AnsiConsole.MarkupLineInterpolated($"{_FirstNumber} {_GameSymbol} {_SecondNumber} = ");
+                
+                // Get true Answer
+                try
+                {
+                    _TrueAnswer = GetTrueAnswer();
+                }
+                catch (Exception ex)
+                {
+                    AnsiConsole.Write(ex.Message);
+                }
+
                 // Get User Answer
-                getUserAnswer();
-                // Format the calculation
+                GetUserAnswer();
+                // Format the calculation (with true answer)
                 _FormattedCalculation = FormatCalculation();
                 askedQuestions[i] = _FormattedCalculation;
             } 
         }
 
+        // Get true answer
+        private int GetTrueAnswer()
+        {
+            switch(_GameSymbol)
+            {
+                case "+":
+                    return _FirstNumber + _SecondNumber;
+                case "-":
+                    return _FirstNumber - _SecondNumber;
+                case "*":
+                    return _FirstNumber * _SecondNumber;
+                case "/":
+                    return _FirstNumber / _SecondNumber;
+                default:
+                    throw new Exception("Exception: Not able to return true answer");
+            }
+        }
+
         // Get the user's answer to the question
-        private void getUserAnswer()
+        private void GetUserAnswer()
         {
             int answer = AnsiConsole.Ask<int>("Answer: ");
             _UserAnswer = answer;
@@ -161,7 +203,7 @@ namespace GameLibrary
             formattedCalculation[1] = _GameSymbol;
             formattedCalculation[2] = _SecondNumber.ToString();
             formattedCalculation[3] = "=";
-            formattedCalculation[4] = _UserAnswer.ToString();
+            formattedCalculation[4] = _TrueAnswer.ToString();
 
             return formattedCalculation;
         }
