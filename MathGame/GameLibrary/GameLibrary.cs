@@ -5,10 +5,11 @@ namespace GameLibrary
     public class Game
     {
         private Random _Random { get; set; }
+        private int GAME_ROUNDS = 5;
 
         public bool GameRunning { get; }
         private int _Score { get; set; }
-        private List<string> _PreviousGames { get; set; }
+        private List<string[]> _PreviousGames { get; set; }
 
         private string _MenuChoice { get; set; }
         private string _GameSymbol { get; set; }
@@ -17,18 +18,22 @@ namespace GameLibrary
         private int _FirstNumber { get; set; }
         private int _SecondNumber { get; set; }
 
-        private int _userAnswer { get; set; }
+        private int _UserAnswer { get; set; }
+
+        private string[] _FormattedCalculation { get; set;}
 
         public Game()
         {
             this._Random = new Random();
             this.GameRunning = true;
             this._Score = 0;
-            this._PreviousGames = new List<string>();
+            this._PreviousGames = new List<string[]>();
             this._MenuChoice = "";
             this._Difficulty = new int[2];
             this._FirstNumber = 0;
             this._SecondNumber = 0;
+            this._UserAnswer = 0;
+            this._FormattedCalculation = new string[5];
         }
 
         public int GetScore()
@@ -36,7 +41,7 @@ namespace GameLibrary
             return _Score;
         }
 
-        public List<string> GetPreviousGames()
+        public List<string[]> GetPreviousGames()
         {
             return _PreviousGames;
         }
@@ -53,6 +58,19 @@ namespace GameLibrary
             _MenuChoice = choice;
         }
 
+        public void RunChoice()
+        {
+            switch ( _MenuChoice )
+            {
+                case "Change Difficulty":
+                    AskDifficulty();
+                    break;
+                case "Addition":
+                    DoCalculation();
+                    break;
+            }
+        }
+
         private string GetGameSymbol(string choice)
         {
             switch (choice)
@@ -67,16 +85,6 @@ namespace GameLibrary
                     return "/";
                 default:
                     return "#";
-            }
-        }
-
-        public void RunChoice()
-        {
-            switch ( _MenuChoice )
-            {
-                case "Change Difficulty":
-                    AskDifficulty();
-                    break;
             }
         }
 
@@ -124,12 +132,37 @@ namespace GameLibrary
             }
         }
 
-        /*private void DoCalculation()
+        private void DoCalculation()
         {
-            // Update numbers
-            GenerateGameNumbers();
+            string[][] askedQuestions = new string[5][];
+            for (int i = 0; i < GAME_ROUNDS; i++){
+                // Update numbers
+                GenerateGameNumbers();
+                AnsiConsole.MarkupLineInterpolated($"{_FirstNumber} {_GameSymbol} {_SecondNumber} = ");
+                // Get User Answer
+                getUserAnswer();
+                // Format the calculation
+                _FormattedCalculation = FormatCalculation();
+                askedQuestions[i] = _FormattedCalculation;
+            } 
+        }
 
-            AnsiConsole.MarkupLineInterpolated($"{_FirstNumber} {symb}");
-        }*/
+        private void getUserAnswer()
+        {
+            int answer = AnsiConsole.Ask<int>("Answer: ");
+            _UserAnswer = answer;
+        }
+
+        private string[] FormatCalculation()
+        {
+            string[] formattedCalculation = new string[5];
+            formattedCalculation[0] = _FirstNumber.ToString();
+            formattedCalculation[1] = _GameSymbol;
+            formattedCalculation[2] = _SecondNumber.ToString();
+            formattedCalculation[3] = "=";
+            formattedCalculation[4] = _UserAnswer.ToString();
+
+            return formattedCalculation;
+        }
     }
 }

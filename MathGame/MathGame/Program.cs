@@ -5,7 +5,7 @@ Game calculator = new Game();
 
 while (calculator.GameRunning)
 {
-    calculator.GetMenuOption();
+    calculator.GetSetMenuOptions();
     calculator.RunChoice();
 
     // Generate numbers for 
