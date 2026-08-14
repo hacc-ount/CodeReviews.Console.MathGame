@@ -76,6 +76,15 @@ namespace GameLibrary
                     // Generic function for all games
                     RunGame();
                     break;
+                case "Subtraction":
+                    RunGame();
+                    break;
+                case "Multiplication":
+                    RunGame();
+                    break;
+                case "Division":
+                    RunGame();
+                    break;
                 case "Change Difficulty":
                     AskDifficulty();
                     break;
@@ -151,10 +160,18 @@ namespace GameLibrary
             if (_MenuChoice == "Division")
             {
                 // If there's a remainder from the division
-                while (_FirstNumber % _SecondNumber != 0)
+                while (_SecondNumber == 0)
                 {
                     // Change the second number
                     _SecondNumber = _Random.Next(_Difficulty[0], _Difficulty[1]);
+                }
+                while (_FirstNumber % _SecondNumber != 0)
+                {
+                    _SecondNumber = _Random.Next(_Difficulty[0], _Difficulty[1]);
+                    if (_SecondNumber == 0)
+                    {
+                        _SecondNumber++;
+                    }
                 }
             }
 
