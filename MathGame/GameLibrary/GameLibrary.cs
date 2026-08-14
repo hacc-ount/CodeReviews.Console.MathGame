@@ -10,7 +10,7 @@ namespace GameLibrary
 
         public bool GameRunning { get; }
         private int _Score { get; set; }
-        private List<string[]> _PreviousGames { get; set; }
+        private List<string[,]> _PreviousGames { get; set; }
 
         private string _MenuChoice { get; set; }
         private string _GameSymbol { get; set; }
@@ -23,7 +23,7 @@ namespace GameLibrary
 
         private int _UserAnswer { get; set; }
 
-        private string[] _Calculation { get; set;}
+        private string[] _Calculation { get; set; }
         private string _FormattedCalculation { get; set; }
 
         public Panel _CalculationDisplay { get; set; }
@@ -35,8 +35,9 @@ namespace GameLibrary
             this._Random = new Random();
             this.GameRunning = true;
             this._Score = 0;
-            this._PreviousGames = new List<string[]>();
+            this._PreviousGames = new List<string[,]>();
             this._MenuChoice = "";
+            this._GameSymbol = "";
             this._Difficulty = new int[2];
             this._FirstNumber = 0;
             this._SecondNumber = 0;
@@ -55,7 +56,7 @@ namespace GameLibrary
             string choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                 .Title("Select a game")
-                .AddChoices("Addition", "Subtraction", "Multiplication", "Division", "Change Difficulty")
+                .AddChoices("Addition", "Subtraction", "Multiplication", "Division", "Change Difficulty", "View Past Games")
                 );
 
             _GameSymbol = GetGameSymbol(choice);
@@ -66,14 +67,17 @@ namespace GameLibrary
         public void RunChoice()
         {
             // Using the users choice from the menu
-            switch ( _MenuChoice )
+            switch (_MenuChoice)
             {
-                case "Change Difficulty":
-                    AskDifficulty();
-                    break;
                 case "Addition":
                     // Generic function for all games
                     RunGame();
+                    break;
+                case "Change Difficulty":
+                    AskDifficulty();
+                    break;
+                case "View Past Games":
+                    ViewPastGames();
                     break;
             }
         }
@@ -155,14 +159,14 @@ namespace GameLibrary
         // Run the game rounds, and update the records to record the game.
         private void RunGame()
         {
-            string[][] askedQuestions = new string[5][];
-            for (int i = 0; i < GAME_ROUNDS; i++){
+            string[,] askedQuestions = new string[5, 3];
+            for (int j = 0; j < GAME_ROUNDS; j++) {
                 AnsiConsole.Clear();
 
                 // Update numbers
                 GenerateGameNumbers();
                 AnsiConsole.Write(new Panel($"{_FirstNumber} {_GameSymbol} {_SecondNumber} = "));
-                
+
                 // Get true Answer
                 try
                 {
@@ -177,7 +181,9 @@ namespace GameLibrary
                 GetUserAnswer();
                 // Format the calculation (with true answer)
                 _Calculation = FormatCalculation();
-                askedQuestions[i] = _Calculation;
+                askedQuestions[j, 0] = string.Join("", _Calculation);
+                askedQuestions[j, 1] = _Calculation[4].ToString();
+                askedQuestions[j, 2] = _TrueAnswer.ToString();
                 WriteFormattedString();
 
                 AnsiConsole.Clear();
@@ -185,20 +191,21 @@ namespace GameLibrary
                 CreateNewGrid(); // Create new grid to get rid of the previous one
                 DisplayCalculationPanel(); // Add the panel to the grid and display grid in console
                 CheckCorrect(); // Display text to indicate whether answer was correct or not.
-                
-                if (i == 4)
+
+                if (j == 4)
                 {
                     AnsiConsole.MarkupLine("[yellow]Game Finished![/]");
                 }
                 Thread.Sleep(2000);
-            } 
+            }
+            _PreviousGames.Add(askedQuestions);
 
         }
 
         // Get true answer
         private int GetTrueAnswer()
         {
-            switch(_GameSymbol)
+            switch (_GameSymbol)
             {
                 case "+":
                     return _FirstNumber + _SecondNumber;
@@ -240,7 +247,7 @@ namespace GameLibrary
             formattedCalculation[1] = _GameSymbol;
             formattedCalculation[2] = _SecondNumber.ToString();
             formattedCalculation[3] = "=";
-            formattedCalculation[4] = _TrueAnswer.ToString();
+            formattedCalculation[4] = _UserAnswer.ToString();
 
             return formattedCalculation;
         }
@@ -254,7 +261,7 @@ namespace GameLibrary
                 if (i == 4)
                 {
                     temp = _Calculation[i];
-                    formatted.AppendFormat("{0}.", temp);
+                    formatted.AppendFormat("{0}", temp);
                 }
                 else
                 {
@@ -280,6 +287,40 @@ namespace GameLibrary
                     .RoundedBorder()
                     .BorderColor(Color.Red);
             }
+        }
+
+        private void ViewPastGames()
+        {
+            Table table = new Table()
+                .RoundedBorder();
+            table.AddColumn("Calculation");
+            int gameCount = 0;
+            foreach (var game in _PreviousGames)
+            {
+                gameCount++;
+                string gameNumber = string.Format("[yellow]Game {0}:[/]", gameCount);
+                table.AddRow(gameNumber);
+
+                for (int i = 0; i < 5; i++)
+                {
+                    int userAnswer = int.Parse(game[i, 1]);
+                    int actualAnswer = int.Parse(game[i, 2]);
+                    
+                    if (userAnswer == actualAnswer)
+                    {
+                        string calculation = string.Format("[green]{0}[/]", game[i, 0]);
+                        table.AddRow(calculation);
+                    }
+                    else
+                    {
+                        string calculation = string.Format("[red]{0}[/]", game[i, 0]);
+                        table.AddRow(calculation);
+                    }
+                }
+                table.AddEmptyRow();
+            }
+            AnsiConsole.Clear();
+            AnsiConsole.Write(table);
         }
     }
 }
