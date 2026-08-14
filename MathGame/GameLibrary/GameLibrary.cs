@@ -7,6 +7,7 @@ namespace GameLibrary
     {
         private Random _Random { get; }
         private int GAME_ROUNDS = 5;
+        private Style Highlight = new Style(Color.Aquamarine1_1);
 
         public bool GameRunning { get; }
         private int _Score { get; set; }
@@ -47,7 +48,8 @@ namespace GameLibrary
             this._FormattedCalculation = "";
             this._Grid = new Grid().AddColumn();
             this._CalculationDisplay = new Panel("----------")
-                .RoundedBorder();
+                .RoundedBorder()
+                .BorderColor(Color.Honeydew2);
         }
 
         // Get user's menu choice. Update _MenuChoice and _GameSymbol
@@ -55,8 +57,9 @@ namespace GameLibrary
         {
             string choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                .Title("Select a game")
+                .Title("[Aquamarine1]Select a game[/]")
                 .AddChoices("Addition", "Subtraction", "Multiplication", "Division", "Change Difficulty", "View Past Games")
+                .HighlightStyle(Highlight)
                 );
 
             _GameSymbol = GetGameSymbol(choice);
@@ -114,8 +117,9 @@ namespace GameLibrary
         {
             string difficulty = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                .Title("Select a difficulty")
+                .Title("[Aquamarine1]Select a difficulty[/]")
                 .AddChoices("Easy", "Medium", "Hard")
+                .HighlightStyle(Highlight)
                 );
             switch (difficulty)
             {
@@ -165,7 +169,7 @@ namespace GameLibrary
 
                 // Update numbers
                 GenerateGameNumbers();
-                AnsiConsole.Write(new Panel($"{_FirstNumber} {_GameSymbol} {_SecondNumber} = "));
+                AnsiConsole.Write(new Panel($"{_FirstNumber} {_GameSymbol} {_SecondNumber} = ").RoundedBorder().BorderColor(Color.Honeydew2));
 
                 // Get true Answer
                 try
@@ -181,7 +185,7 @@ namespace GameLibrary
                 GetUserAnswer();
                 // Format the calculation (with true answer)
                 _Calculation = FormatCalculation();
-                askedQuestions[j, 0] = string.Join("", _Calculation);
+                askedQuestions[j, 0] = string.Join(" ", _Calculation);
                 askedQuestions[j, 1] = _Calculation[4].ToString();
                 askedQuestions[j, 2] = _TrueAnswer.ToString();
                 WriteFormattedString();
@@ -194,7 +198,7 @@ namespace GameLibrary
 
                 if (j == 4)
                 {
-                    AnsiConsole.MarkupLine("[yellow]Game Finished![/]");
+                    AnsiConsole.MarkupLine("[Honeydew2]Game Finished![/]");
                 }
                 Thread.Sleep(2000);
             }
@@ -231,7 +235,7 @@ namespace GameLibrary
         {
             if (_UserAnswer == _TrueAnswer)
             {
-                AnsiConsole.MarkupLineInterpolated($"{_UserAnswer} is [green]Correct![/]");
+                AnsiConsole.MarkupLineInterpolated($"{_UserAnswer} is [SeaGreen1_1]Correct![/]");
             }
             else
             {
@@ -279,26 +283,27 @@ namespace GameLibrary
             {
                 _CalculationDisplay = new Panel(_FormattedCalculation)
                     .RoundedBorder()
-                    .BorderColor(Color.Green);
+                    .BorderColor(Color.SeaGreen1);
             }
             else
             {
                 _CalculationDisplay = new Panel(_FormattedCalculation)
                     .RoundedBorder()
-                    .BorderColor(Color.Red);
+                    .BorderColor(Color.IndianRed);
             }
         }
 
         private void ViewPastGames()
         {
             Table table = new Table()
-                .RoundedBorder();
-            table.AddColumn("Calculation");
+                .RoundedBorder()
+                .BorderColor(Color.Honeydew2);
+            table.AddColumn("-- [Honeydew2]Games[/] --");
             int gameCount = 0;
             foreach (var game in _PreviousGames)
             {
                 gameCount++;
-                string gameNumber = string.Format("[yellow]Game {0}:[/]", gameCount);
+                string gameNumber = string.Format("[Honeydew2]Game {0}:[/]", gameCount);
                 table.AddRow(gameNumber);
 
                 for (int i = 0; i < 5; i++)
@@ -308,12 +313,12 @@ namespace GameLibrary
                     
                     if (userAnswer == actualAnswer)
                     {
-                        string calculation = string.Format("[green]{0}[/]", game[i, 0]);
+                        string calculation = string.Format("[SeaGreen1]{0}[/][SeaGreen1_1] - Correct[/]", game[i, 0]);
                         table.AddRow(calculation);
                     }
                     else
                     {
-                        string calculation = string.Format("[red]{0}[/]", game[i, 0]);
+                        string calculation = string.Format("[IndianRed]{0}[/][IndianRed1_1] - Incorrect[/]", game[i, 0]);
                         table.AddRow(calculation);
                     }
                 }
