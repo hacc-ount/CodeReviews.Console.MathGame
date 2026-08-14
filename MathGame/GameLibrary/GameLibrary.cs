@@ -28,6 +28,8 @@ namespace GameLibrary
 
         public Panel _CalculationDisplay { get; set; }
 
+        public Grid _Grid { get; set; }
+
         public Game()
         {
             this._Random = new Random();
@@ -42,7 +44,7 @@ namespace GameLibrary
             this._UserAnswer = 0;
             this._Calculation = new string[5];
             this._FormattedCalculation = "";
-
+            this._Grid = new Grid().AddColumn();
             this._CalculationDisplay = new Panel("----------")
                 .RoundedBorder();
         }
@@ -75,10 +77,14 @@ namespace GameLibrary
                     break;
             }
         }
-
-        public Panel DisplayCalculationPanel()
+        private void CreateNewGrid()
         {
-            return _CalculationDisplay;
+            _Grid = new Grid().AddColumn();
+        }
+        private void DisplayCalculationPanel()
+        {
+            _Grid.AddRow(_CalculationDisplay);
+            AnsiConsole.Write(_Grid);
         }
 
         // Return game symbol based on users menu choice
@@ -151,9 +157,11 @@ namespace GameLibrary
         {
             string[][] askedQuestions = new string[5][];
             for (int i = 0; i < GAME_ROUNDS; i++){
+                AnsiConsole.Clear();
+
                 // Update numbers
                 GenerateGameNumbers();
-                AnsiConsole.MarkupLineInterpolated($"{_FirstNumber} {_GameSymbol} {_SecondNumber} = ");
+                AnsiConsole.Write(new Panel($"{_FirstNumber} {_GameSymbol} {_SecondNumber} = "));
                 
                 // Get true Answer
                 try
@@ -170,9 +178,21 @@ namespace GameLibrary
                 // Format the calculation (with true answer)
                 _Calculation = FormatCalculation();
                 askedQuestions[i] = _Calculation;
+                WriteFormattedString();
 
-                UpdateDisplay();
+                AnsiConsole.Clear();
+                UpdateDisplay(); // Update panel
+                CreateNewGrid(); // Create new grid to get rid of the previous one
+                DisplayCalculationPanel(); // Add the panel to the grid and display grid in console
+                CheckCorrect(); // Display text to indicate whether answer was correct or not.
+                
+                if (i == 4)
+                {
+                    AnsiConsole.MarkupLine("[yellow]Game Finished![/]");
+                }
+                Thread.Sleep(2000);
             } 
+
         }
 
         // Get true answer
@@ -198,6 +218,18 @@ namespace GameLibrary
         {
             int answer = AnsiConsole.Ask<int>("Answer: ");
             _UserAnswer = answer;
+        }
+
+        private void CheckCorrect()
+        {
+            if (_UserAnswer == _TrueAnswer)
+            {
+                AnsiConsole.MarkupLineInterpolated($"{_UserAnswer} is [green]Correct![/]");
+            }
+            else
+            {
+                AnsiConsole.MarkupLineInterpolated($"{_UserAnswer} is [red]Incorrect.[/]");
+            }
         }
 
         // Format the calculation as an array (including users answer).
